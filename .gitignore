@@ -1,6 +1,7 @@
 kernel
 
 *~
+*swp
 
 # Object files
 *.o
