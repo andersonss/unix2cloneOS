@@ -2,6 +2,7 @@
 //           Made for JamesM's tutorials <www.jamesmolloy.co.uk>
 
 #include "monitor.h"
+#include "descriptor_tables.h"
 
 int main(struct multiboot *mboot_ptr)
 {
@@ -9,6 +10,9 @@ int main(struct multiboot *mboot_ptr)
     monitor_clear();
     // Write out a sample string
     monitor_write("Hello, world!");
+
+    asm volatile("int $0x3");
+    asm volatile("int $0x4");
     
     return 0;
 }
