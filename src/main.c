@@ -8,52 +8,23 @@
 #include "multiboot.h"
 #include "fs.h"
 #include "initrd.h"
+#include "task.h"
+#include "syscall.h"
 
 extern u32int placement_address;
+u32int initial_esp;
 
-int main(struct multiboot *mboot_ptr)
+int main(struct multiboot *mboot_ptr, u32int initial_stack)
 {
+    initial_esp = initial_stack;
     // Initialise all the ISRs and segmentation
     init_descriptor_tables();
     // Initialise the screen (by clearing it)
     monitor_clear();
 
-    /* Handle interrupts*/
-    //asm volatile("int $0x3");
-    //asm volatile("int $0x4");
-
-    /* Timer interrupt*/
-    //asm volatile("sti");
-    //init_timer(50);
-
-    /* Paging*/
-    //initialise_paging();
-    //monitor_write("Hello, paging world!\n");
-
-    /*
-    u32int *ptr = (u32int*)0xA0000000;
-    u32int do_page_fault = *ptr;
-    */
-
-    /*
-    u32int a = kmalloc(8);
-    initialise_paging();   
-    u32int b = kmalloc(8);
-    u32int c = kmalloc(8);
-    monitor_write("a: ");
-    monitor_write_hex(a);
-    monitor_write(", b: ");
-    monitor_write_hex(b);
-    monitor_write("\nc: ");
-    monitor_write_hex(c);
-
-    kfree(c);
-    kfree(b);
-    u32int d = kmalloc(12);
-    monitor_write(", d: ");
-    monitor_write_hex(d);
-    */
-
+    // Initialise the PIT to 100Hz
+    asm volatile("sti");
+    init_timer(50);
 
     // Find the location of our initial ramdisk.
     ASSERT(mboot_ptr->mods_count > 0);
@@ -65,35 +36,17 @@ int main(struct multiboot *mboot_ptr)
     // Start paging.
     initialise_paging();
 
+    // Start multitasking.
+    initialise_tasking();
+
     // Initialise the initial ramdisk, and set it as the filesystem root.
     fs_root = initialise_initrd(initrd_location);
 
-    // list the contents of /
-    int i = 0;
-    struct dirent *node = 0;
-    while ( (node = readdir_fs(fs_root, i)) != 0)
-    {
-        monitor_write("Found file ");
-        monitor_write(node->name);
-        fs_node_t *fsnode = finddir_fs(fs_root, node->name);
+    initialise_syscalls();
 
-        if ((fsnode->flags&0x7) == FS_DIRECTORY)
-        {
-            monitor_write("\n\t(directory)\n");
-        }
-        else
-        {
-            monitor_write("\n\t contents: \"");
-            char buf[256];
-            u32int sz = read_fs(fsnode, 0, 256, buf);
-            int j;
-            for (j = 0; j < sz; j++)
-                monitor_put(buf[j]);
-            
-            monitor_write("\"\n");
-        }
-        i++;
-    }
+    switch_to_user_mode();
+
+    syscall_monitor_write("Hello, user world!\n");
 
     return 0;
 }
