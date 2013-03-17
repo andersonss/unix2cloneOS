@@ -16,7 +16,11 @@ clean:
 	-rm *.o *~ kernel
 
 link:
-	ld $(LDFLAGS) -o kernel $(SOURCES)
+	as -L inb.s -o inb.o
+	as -L outb.s -o outb.o
+	as -L inw.s -o inw.o
+	as -L cli.s -o cli.o
+	ld $(LDFLAGS) -o kernel $(SOURCES) inb.o outb.o inw.o cli.o
 
 .s.o:
 	nasm $(ASFLAGS) $<
