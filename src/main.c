@@ -10,6 +10,7 @@
 #include "initrd.h"
 #include "task.h"
 #include "syscall.h"
+#include "keyboard.h"
 
 extern u32int placement_address;
 u32int initial_esp;
@@ -47,6 +48,8 @@ int main(struct multiboot *mboot_ptr, u32int initial_stack)
     switch_to_user_mode();
 
     syscall_monitor_write("Hello, user world!\n");
+
+    //keyboard_install();
 
     return 0;
 }

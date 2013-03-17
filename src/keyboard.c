@@ -1,4 +1,4 @@
-#include "irq.h"
+#include "isr.h"
 #include "monitor.h"
 #include "common.h"
 
@@ -84,5 +84,5 @@ void keyboard_handler(struct regs *r)
 /* Installs the keyboard handler into IRQ1 */
 void keyboard_install()
 {
-	irq_install_handler(1, keyboard_handler);
+	irq_handler(keyboard_handler);
 }
