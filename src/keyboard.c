@@ -84,5 +84,5 @@ void keyboard_handler(struct regs *r)
 /* Installs the keyboard handler into IRQ1 */
 void keyboard_install()
 {
-	irq_handler(keyboard_handler);
+	register_interrupt_handler(1, keyboard_handler);
 }
