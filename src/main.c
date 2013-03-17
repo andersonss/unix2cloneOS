@@ -19,18 +19,20 @@ int main(struct multiboot *mboot_ptr, u32int initial_stack)
 {
     initial_esp = initial_stack;
 
-    keyboard_install();
-
     // Initialise all the ISRs and segmentation
     init_descriptor_tables();
+    
     // Initialise the screen (by clearing it)
     monitor_clear();
 
-    // Initialise the PIT to 100Hz
-    asm volatile("sti");
 
-    monitor_write("Teste");
+    asm volatile("sti");
+    init_timer(50);
+
+    monitor_write("Teste\n");
  
+    keyboard_install();
+
     for(;;);
 
     return 0;
