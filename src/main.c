@@ -25,15 +25,18 @@ int main(struct multiboot *mboot_ptr, u32int initial_stack)
     // Initialise the screen (by clearing it)
     monitor_clear();
 
+    //sti();
 
-    asm volatile("sti");
-    init_timer(50);
+    //init_timer(50);
 
-    monitor_write("Teste\n");
- 
-    keyboard_install();
+    initialise_paging();
+    monitor_write("Hello, paging world!\n");
 
-    for(;;);
+    u32int *ptr = (u32int*)0xA0000000;
+    u32int do_page_fault = *ptr;
+    //keyboard_install();
+
+    //for(;;);
 
     return 0;
 }

@@ -20,7 +20,9 @@ link:
 	as -L outb.s -o outb.o
 	as -L inw.s -o inw.o
 	as -L cli.s -o cli.o
-	ld $(LDFLAGS) -o kernel $(SOURCES) inb.o outb.o inw.o cli.o
+	as -L sti.s -o sti.o
+	as -L register.s -o register.o
+	ld $(LDFLAGS) -o kernel $(SOURCES) inb.o outb.o inw.o cli.o sti.o register.o
 
 .s.o:
 	nasm $(ASFLAGS) $<

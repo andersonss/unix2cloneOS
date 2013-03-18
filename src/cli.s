@@ -1,4 +1,4 @@
-.glob cli
+.globl cli
 cli:
     cli
     ret

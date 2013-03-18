@@ -169,11 +169,14 @@ void initialise_paging()
 void switch_page_directory(page_directory_t *dir)
 {
     current_directory = dir;
-    asm volatile("mov %0, %%cr3":: "r"(dir->physicalAddr));
+    //asm volatile("mov %0, %%cr3":: "r"(dir->physicalAddr));
+    set_register_cr3(dir->physicalAddr);
     u32int cr0;
-    asm volatile("mov %%cr0, %0": "=r"(cr0));
+    //asm volatile("mov %%cr0, %0": "=r"(cr0));
+    cr0 = get_register_cr0();
     cr0 |= 0x80000000; // Enable paging!
-    asm volatile("mov %0, %%cr0":: "r"(cr0));
+    //asm volatile("mov %0, %%cr0":: "r"(cr0));
+    set_register_cr0(cr0);
 }
 
 page_t *get_page(u32int address, int make, page_directory_t *dir)
@@ -207,8 +210,9 @@ void page_fault(registers_t *regs)
     // A page fault has occurred.
     // The faulting address is stored in the CR2 register.
     u32int faulting_address;
-    asm volatile("mov %%cr2, %0" : "=r" (faulting_address));
-    
+    //asm volatile("mov %%cr2, %0" : "=r" (faulting_address));
+    faulting_address = get_register_cr2();
+
     // The error code gives us details of what happened.
     int present   = !(regs->err_code & 0x1); // Page not present
     int rw = regs->err_code & 0x2;           // Write operation?
