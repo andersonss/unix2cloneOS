@@ -4,7 +4,7 @@
 # rule, as we use nasm instead of GNU as.
 
 SOURCES=boot.o main.o monitor.o common.o descriptor_tables.o isr.o interrupt.o gdt.o timer.o \
-        kheap.o paging.o ordered_array.o fs.o initrd.o task.o process.o keyboard.o 
+        kheap.o paging.o ordered_array.o fs.o initrd.o task.o process.o syscall.o keyboard.o 
 
 CFLAGS=-nostdlib -nostdinc -fno-builtin
 LDFLAGS=-Tlink.ld
@@ -13,7 +13,7 @@ ASFLAGS=-felf
 all: $(SOURCES) link
 
 clean:
-	-rm *.o kernel
+	-rm *.o *~ kernel
 
 link:
 	as -L inb.s -o inb.o

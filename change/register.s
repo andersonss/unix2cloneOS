@@ -28,39 +28,15 @@ set_register_cr3:
 .globl get_register_esp
 get_register_esp:
 	movl %esp, %eax
-	addl $4, %eax
 	ret
 
-.globl set_register_esp
-set_register_esp:
+.globl get_register_esp
+get_register_esp:
 	movl 4(%esp), %eax
-	popl %ecx
-	movl %eax, %esp
-	pushl %ecx
+	mov %eax, %esp
 	ret
 
 .globl get_register_ebp
 get_register_ebp:
 	movl %ebp, %eax
 	ret
-
-.globl set_register_ebp
-set_register_ebp:
-	movl 4(%esp), %eax
-	movl %eax, %ebp
-	ret
-
-.global register_task
-register_task:
-	cli
-	movl 4(%esp),%ecx
-	movl 8(%esp),%ebx
-	movl 12(%esp),%ebp
-	movl 16(%esp),%edx
- 
-	movl %ebx, %esp;       
-	movl %edx, %cr3;       
-	movl $0x12345, %eax;
-	sti
-	jmp *%ecx
-

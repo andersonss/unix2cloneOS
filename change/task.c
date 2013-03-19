@@ -62,9 +62,11 @@ void move_stack(void *new_stack_start, u32int size)
   set_register_cr3(pd_addr);
 
   // Old ESP and EBP, read from registers.
-  u32int old_stack_pointer; //asm volatile("mov %%esp, %0" : "=r" (old_stack_pointer));
+  u32int old_stack_pointer; 
+  //asm volatile("mov %%esp, %0" : "=r" (old_stack_pointer));
   old_stack_pointer = get_register_esp();
-  u32int old_base_pointer;  //asm volatile("mov %%ebp, %0" : "=r" (old_base_pointer));
+  u32int old_base_pointer;  
+  //asm volatile("mov %%ebp, %0" : "=r" (old_base_pointer));
   old_base_pointer = get_register_ebp();
 
   // Offset to add to old stack addresses to get a new stack address.
@@ -96,8 +98,7 @@ void move_stack(void *new_stack_start, u32int size)
   // Change stacks.
   //asm volatile("mov %0, %%esp" : : "r" (new_stack_pointer));
   set_register_esp(new_stack_pointer);
-  //asm volatile("mov %0, %%ebp" : : "r" (new_base_pointer));
-  set_register_ebp(new_base_pointer);
+  asm volatile("mov %0, %%ebp" : : "r" (new_base_pointer));
 }
 
 void switch_task()
@@ -108,10 +109,8 @@ void switch_task()
 
     // Read esp, ebp now for saving later on.
     u32int esp, ebp, eip;
-    //asm volatile("mov %%esp, %0" : "=r"(esp));
-    esp = get_register_esp();
-    //asm volatile("mov %%ebp, %0" : "=r"(ebp));
-    ebp = get_register_ebp();
+    asm volatile("mov %%esp, %0" : "=r"(esp));
+    asm volatile("mov %%ebp, %0" : "=r"(ebp));
 
     // Read the instruction pointer. We do some cunning logic here:
     // One of two things could have happened when this function exits - 
@@ -154,7 +153,6 @@ void switch_task()
     // * Restarts interrupts. The STI instruction has a delay - it doesn't take effect until after
     //   the next instruction.
     // * Jumps to the location in ECX (remember we put the new EIP in there).
-    /*
     asm volatile("         \
       cli;                 \
       mov %0, %%ecx;       \
@@ -165,14 +163,12 @@ void switch_task()
       sti;                 \
       jmp *%%ecx           "
                  : : "r"(eip), "r"(esp), "r"(ebp), "r"(current_directory->physicalAddr));
-      */
-      register_task(eip, esp, ebp, current_directory->physicalAddr);
 }
 
 int fork()
 {
     // We are modifying kernel structures, and so cannot
-    cli();
+    asm volatile("cli");
 
     // Take a pointer to this process' task struct for later reference.
     task_t *parent_task = (task_t*)current_task;
@@ -203,14 +199,12 @@ int fork()
     if (current_task == parent_task)
     {
         // We are the parent, so set up the esp/ebp/eip for our child.
-        u32int esp; //asm volatile("mov %%esp, %0" : "=r"(esp));
-        esp = get_register_esp();
+        u32int esp; asm volatile("mov %%esp, %0" : "=r"(esp));
         u32int ebp; asm volatile("mov %%ebp, %0" : "=r"(ebp));
-        //ebp = get_register_ebp();
         new_task->esp = esp;
         new_task->ebp = ebp;
         new_task->eip = eip;
-        sti();
+        asm volatile("sti");
 
         return new_task->id;
     }

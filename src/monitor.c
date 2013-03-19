@@ -70,11 +70,6 @@ void monitor_put(char c)
     if (c == 0x08 && cursor_x)
     {
         cursor_x--;
-        monitor_put(' ');
-
-        if(cursor_x != 0) 
-            cursor_x--;
-                
     }
 
     // Handle a tab by increasing the cursor's X, but only to a point
